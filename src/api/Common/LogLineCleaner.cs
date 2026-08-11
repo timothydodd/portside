@@ -28,6 +28,25 @@ public static partial class LogLineCleaner
         RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex LeadingLevelRegex();
 
+    // Case-insensitive marker checks. Callers scan every log line, so these avoid
+    // the per-line string copy a ToUpperInvariant() approach would allocate.
+    public static bool HasErrorMarker(string line) =>
+        line.Contains("ERROR", StringComparison.OrdinalIgnoreCase)
+        || line.Contains("EXCEPTION", StringComparison.OrdinalIgnoreCase)
+        || line.Contains("FATAL", StringComparison.OrdinalIgnoreCase);
+
+    public static bool HasWarningMarker(string line) =>
+        line.Contains("WARN", StringComparison.OrdinalIgnoreCase);
+
+    public static string DetectLevel(string line)
+    {
+        if (HasErrorMarker(line)) return "Error";
+        if (HasWarningMarker(line)) return "Warning";
+        if (line.Contains("DEBUG", StringComparison.OrdinalIgnoreCase)) return "Debug";
+        if (line.Contains("TRACE", StringComparison.OrdinalIgnoreCase)) return "Trace";
+        return "Information";
+    }
+
     public static string Clean(string raw)
     {
         if (string.IsNullOrEmpty(raw)) return raw;

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { LoadingSpinnerComponent } from '../../_components/loading-spinner/loading-spinner.component';
 import { Pod } from '../../_models/kubernetes.interfaces';
 import { KubernetesApiService } from '../../_services/kubernetes.api';
@@ -18,12 +18,12 @@ interface PodOption {
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, LoadingSpinnerComponent, CommonModule],
+  imports: [FormsModule, LucideDynamicIcon, LoadingSpinnerComponent, CommonModule],
   template: `
     <div class="settings-page">
       <header class="settings-header">
         <button class="back-btn" (click)="goBack()" title="Back">
-          <lucide-icon name="chevron-right" class="back-icon" />
+          <svg lucideIcon="chevron-right" class="back-icon"></svg>
           Back
         </button>
         <h1>Monitoring Settings</h1>
@@ -90,7 +90,7 @@ interface PodOption {
 
           <div class="pods-toolbar">
             <div class="search">
-              <lucide-icon name="search" />
+              <svg lucideIcon="search"></svg>
               <input type="text" placeholder="Filter pods…" [(ngModel)]="podFilter" />
             </div>
             <span class="count">{{ enabledCount() }} of {{ podOptions().length }} enabled</span>
@@ -121,7 +121,7 @@ interface PodOption {
             <span class="saved">Saved.</span>
           }
           <button class="primary" [disabled]="saving()" (click)="save()">
-            <lucide-icon name="save" />
+            <svg lucideIcon="save"></svg>
             {{ saving() ? 'Saving…' : 'Save changes' }}
           </button>
         </footer>

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { take } from 'rxjs';
 import { AuthService, User } from '../../_services/auth-service';
 import { ClickOutsideDirective } from '../../_services/click-outside.directive';
@@ -9,12 +9,12 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
 @Component({
   selector: 'app-user-menu',
   standalone: true,
-  imports: [LucideAngularModule, ClickOutsideDirective],
+  imports: [LucideDynamicIcon, ClickOutsideDirective],
   template: `
     <div class="user-menu-container">
       <button type="button" class="user-menu-trigger" (click)="isOpen.set(!isOpen())" title="User menu">
         <div class="user-avatar">
-          <lucide-icon name="user" size="18"></lucide-icon>
+          <svg lucideIcon="user" size="18"></svg>
         </div>
         <span class="user-name">{{ user()?.userName ?? username() ?? 'Account' }}</span>
       </button>
@@ -24,7 +24,7 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
           <div class="dropdown-header">
             <div class="user-info">
               <div class="large-avatar">
-                <lucide-icon name="user" size="24"></lucide-icon>
+                <svg lucideIcon="user" size="24"></svg>
               </div>
               <div class="user-details">
                 <div class="username">{{ user()?.userName ?? username() ?? 'Account' }}</div>
@@ -37,15 +37,15 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
 
           <div class="dropdown-menu-items">
             <button class="dropdown-item" (click)="openSettings()">
-              <lucide-icon name="settings" size="16"></lucide-icon>
+              <svg lucideIcon="settings" size="16"></svg>
               <span>Monitoring Settings</span>
             </button>
             <button class="dropdown-item" (click)="changePassword()">
-              <lucide-icon name="shield" size="16"></lucide-icon>
+              <svg lucideIcon="shield" size="16"></svg>
               <span>Change Password</span>
             </button>
             <button class="dropdown-item logout" (click)="logOut()">
-              <lucide-icon name="log-out" size="16"></lucide-icon>
+              <svg lucideIcon="log-out" size="16"></svg>
               <span>Sign Out</span>
             </button>
           </div>

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { PALETTE_DEFINITIONS } from '../../_services/palette-definitions';
 
 @Component({
   selector: 'app-palette-dropdown',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <div class="custom-palette-dropdown" [class.open]="dropdownOpen()">
       <button class="palette-dropdown-trigger" (click)="toggleDropdown()" type="button">
@@ -13,7 +13,7 @@ import { PALETTE_DEFINITIONS } from '../../_services/palette-definitions';
           <div class="palette-gradient-preview" [style.background]="selectedPaletteGradient()"></div>
           <span>{{ selectedPaletteName() || 'Select Palette' }}</span>
         </div>
-        <lucide-icon name="chevron-down" size="16"></lucide-icon>
+        <svg lucideIcon="chevron-down" size="16"></svg>
       </button>
       @if (dropdownOpen()) {
         <div class="palette-dropdown-menu">

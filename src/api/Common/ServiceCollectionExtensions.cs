@@ -11,13 +11,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
-using RoboDodd.OrmLite;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration config, ILogger logger)
     {
-        var origins = config.GetValue<string>("AllowedOrigins")?.Split(',');
+        var origins = config["AllowedOrigins"]?.Split(',');
         services.AddCors(options =>
         {
             options.AddPolicy("Origins", policy =>
@@ -97,8 +96,10 @@ public static class ServiceCollectionExtensions
         var connectionString = config.GetConnectionString("DefaultConnection")
             ?? "Data Source=portside.db";
 
-        var dbFactory = new DbConnectionFactory(connectionString, DatabaseProvider.SQLite);
-        services.AddSingleton(dbFactory);
+        services.AddSingleton(new SqliteConnectionFactory(connectionString));
+        services.AddSingleton<UserStore>();
+        services.AddSingleton<UserPreferenceStore>();
+        services.AddSingleton<SystemSettingStore>();
         services.AddSingleton<DatabaseInitializer>();
         return services;
     }

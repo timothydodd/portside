@@ -3,11 +3,11 @@
     <div class="group cluster">
       <span class="label">Cluster</span>
       <span class="metric" [attr.data-tone]="pctTone(cpuPct())" title="CPU usage">
-        <lucide-icon name="cpu" />
+        <svg lucideIcon="cpu"></svg>
         <span class="val">{{ cpuPct() }}%</span>
       </span>
       <span class="metric" [attr.data-tone]="pctTone(memPct())" title="Memory usage">
-        <lucide-icon name="memory-stick" />
+        <svg lucideIcon="memory-stick"></svg>
         <span class="val">{{ memPct() }}%</span>
       </span>
     </div>
@@ -17,11 +17,11 @@
       <div class="group node">
         <span class="label" [title]="n.name">{{ n.name }}</span>
         <span class="metric" [attr.data-tone]="pctTone(round(n.cpuPercentage))" title="CPU">
-          <lucide-icon name="cpu" />
+          <svg lucideIcon="cpu"></svg>
           <span class="val">{{ round(n.cpuPercentage) }}%</span>
         </span>
         <span class="metric" [attr.data-tone]="pctTone(round(n.memoryPercentage))" title="Memory">
-          <lucide-icon name="memory-stick" />
+          <svg lucideIcon="memory-stick"></svg>
           <span class="val">{{ round(n.memoryPercentage) }}%</span>
         </span>
       </div>

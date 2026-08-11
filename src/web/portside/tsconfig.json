@@ -1,11 +1,10 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "paths": {
-      "@rd-ui": ["dist/rd-ui"],
-      "@rd-ui/*": ["dist/rd-ui/*"]
+      "@rd-ui": ["./dist/rd-ui"],
+      "@rd-ui/*": ["./dist/rd-ui/*"]
     },
     "strict": true,
     "noImplicitOverride": true,

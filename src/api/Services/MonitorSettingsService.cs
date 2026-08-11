@@ -1,6 +1,6 @@
 using System.Text.Json;
-using PortsideApi.Data.Models;
-using RoboDodd.OrmLite;
+using PortsideApi.Common;
+using PortsideApi.Data;
 
 namespace PortsideApi.Services;
 
@@ -25,7 +25,7 @@ public class MonitorSettings
 public sealed class MonitorSettingsService
 {
     private const string SettingKey = "monitor";
-    private readonly DbConnectionFactory _dbFactory;
+    private readonly SystemSettingStore _store;
     private readonly ILogger<MonitorSettingsService> _logger;
     private readonly object _gate = new();
     private MonitorSettings _cached = new();
@@ -33,9 +33,9 @@ public sealed class MonitorSettingsService
 
     public event Action<MonitorSettings>? Changed;
 
-    public MonitorSettingsService(DbConnectionFactory dbFactory, ILogger<MonitorSettingsService> logger)
+    public MonitorSettingsService(SystemSettingStore store, ILogger<MonitorSettingsService> logger)
     {
-        _dbFactory = dbFactory;
+        _store = store;
         _logger = logger;
     }
 
@@ -49,10 +49,9 @@ public sealed class MonitorSettingsService
         MonitorSettings loaded;
         try
         {
-            using var db = _dbFactory.CreateConnection();
-            var row = db.SelectAsync<SystemSetting>(s => s.Key == SettingKey).GetAwaiter().GetResult().FirstOrDefault();
-            loaded = row != null
-                ? (JsonSerializer.Deserialize<MonitorSettings>(row.ValueJson) ?? new MonitorSettings())
+            var json = _store.GetJson(SettingKey);
+            loaded = json != null
+                ? (JsonSerializer.Deserialize(json, AppJsonContext.Default.MonitorSettings) ?? new MonitorSettings())
                 : new MonitorSettings();
         }
         catch (Exception ex)
@@ -74,24 +73,8 @@ public sealed class MonitorSettingsService
     public async Task<MonitorSettings> Save(MonitorSettings settings)
     {
         Normalize(settings);
-        var json = JsonSerializer.Serialize(settings);
-        using var db = _dbFactory.CreateConnection();
-        var existing = (await db.SelectAsync<SystemSetting>(s => s.Key == SettingKey)).FirstOrDefault();
-        if (existing == null)
-        {
-            await db.InsertAsync(new SystemSetting
-            {
-                Key = SettingKey,
-                ValueJson = json,
-                UpdatedAt = DateTime.UtcNow,
-            });
-        }
-        else
-        {
-            existing.ValueJson = json;
-            existing.UpdatedAt = DateTime.UtcNow;
-            await db.UpdateAsync(existing);
-        }
+        var json = JsonSerializer.Serialize(settings, AppJsonContext.Default.MonitorSettings);
+        await _store.UpsertJsonAsync(SettingKey, json);
 
         lock (_gate)
         {

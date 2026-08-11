@@ -18,17 +18,15 @@ public class KubernetesService : IKubernetesService
         _kubernetesClient = kubernetesClient;
         _memoryCache = memoryCache;
     }
-    public async Task WatchMetrics(Action<WatchEventType, V1Node> onEvent,
+    public async Task WatchMetrics(Func<string, V1Node, Task> onEvent,
             Action<Exception>? onError = null,
-            Action? onClosed = null)
+            Action? onClosed = null,
+            CancellationToken token = default)
     {
-        var response = await _kubernetesClient.CoreV1.ListNodeWithHttpMessagesAsync(watch: true
-        );
-
-
-        response.Watch<V1Node, V1NodeList>(
-                  onEvent: onEvent,
-                  onError: onError);
+        var responseTask = _kubernetesClient.CoreV1.ListNodeWithHttpMessagesAsync(
+            watch: true, cancellationToken: token);
+        await K8sWatch.WatchAsync(responseTask, AppJson.V1Node, onEvent, onError, token);
+        onClosed?.Invoke();
     }
 
     private async Task<V1NodeList?> GetNodes()
@@ -43,6 +41,7 @@ public class KubernetesService : IKubernetesService
             }
 
             var nodes2 = await _kubernetesClient.CoreV1.ListNodeAsync();
+            nodes2.Items.StripManagedFields();
 
             _memoryCache.Set(NodeCacheKey, nodes2, TimeSpan.FromMinutes(5));
             return nodes2;
@@ -67,7 +66,7 @@ public class KubernetesService : IKubernetesService
 
 
         // Fetch node details
-        var metrics = await _kubernetesClient.GetKubernetesNodesMetricsAsync();
+        var metrics = await _kubernetesClient.GetNodeMetricsAsync();
 
         double cpuTotal = 0;
         double memTotal = 0;
@@ -80,12 +79,12 @@ public class KubernetesService : IKubernetesService
 
             if (item.Status.Capacity.TryGetValue("cpu", out var cpuCapacity))
             {
-                n.CpuTotal = double.Parse(cpuCapacity?.Value ?? "0");
+                n.CpuTotal = double.Parse(cpuCapacity?.ToString() ?? "0");
                 cpuTotal += n.CpuTotal ?? 0;
             }
             if (item.Status.Capacity.TryGetValue("memory", out var memoryCap))
             {
-                var mem = memoryCap?.Value;
+                var mem = memoryCap?.ToString();
                 if (!string.IsNullOrEmpty(mem))
                 {
                     n.MemoryTotal = ParseMemory(mem);
@@ -107,7 +106,7 @@ public class KubernetesService : IKubernetesService
                 if (m.Usage.TryGetValue("cpu", out var cpuRq))
                 {
 
-                    var cpu = ParseCpu(cpuRq.Value ?? "0");
+                    var cpu = ParseCpu(cpuRq ?? "0");
                     cpuUsageTotal += cpu;
                     node.CpuLoad = cpu;
                     node.CpuPercentage = (double)(cpu / (node.CpuTotal ?? cpu) * 100);
@@ -116,7 +115,7 @@ public class KubernetesService : IKubernetesService
                 if (m.Usage.TryGetValue("memory", out var memRq))
                 {
 
-                    var memoryUsage = ParseMemory(memRq.Value ?? "0");
+                    var memoryUsage = ParseMemory(memRq ?? "0");
                     memoryUsageTotal += memoryUsage;
                     node.MemoryUsage = memoryUsage;
 

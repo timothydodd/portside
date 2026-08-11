@@ -143,13 +143,8 @@ public sealed class PodLogStreamService : IAsyncDisposable
             content = raw.Substring(spaceIdx + 1);
         }
 
-        // Detect level from the raw content first (regex catches "info:", "[INFO]", etc.)
-        var level = "Information";
-        var upper = content.ToUpperInvariant();
-        if (upper.Contains("ERROR") || upper.Contains("EXCEPTION") || upper.Contains("FATAL")) level = "Error";
-        else if (upper.Contains("WARN")) level = "Warning";
-        else if (upper.Contains("DEBUG")) level = "Debug";
-        else if (upper.Contains("TRACE")) level = "Trace";
+        // Detect level from the raw content before cleaning strips "[ERROR]" style prefixes.
+        var level = LogLineCleaner.DetectLevel(content);
 
         // Strip ANSI codes and leading "13:24:54 info:" style prefixes for display.
         content = LogLineCleaner.Clean(content);

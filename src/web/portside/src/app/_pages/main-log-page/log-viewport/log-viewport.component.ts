@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, HostListener, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { combineLatest, Subject, switchMap, tap } from 'rxjs';
 import { ModalContainerService, ToastService } from '@rd-ui';
 import { ContextMenuComponent } from '../../../_components/context-menu/context-menu.component';
@@ -22,7 +22,7 @@ import { LogFilterState } from '../_services/log-filter-state';
 @Component({
   selector: 'app-log-viewport',
   standalone: true,
-  imports: [CommonModule, VirtualScrollerComponent, HighlightLogPipe, LogLevelPipe, LucideAngularModule, TimestampFormatPipe, ContextMenuComponent],
+  imports: [CommonModule, VirtualScrollerComponent, HighlightLogPipe, LogLevelPipe, LucideDynamicIcon, TimestampFormatPipe, ContextMenuComponent],
   template: `
     @if(parentScrollElement(); as parentScrollElement) {
     <virtual-scroller
@@ -47,10 +47,10 @@ import { LogFilterState } from '../_services/log-filter-state';
                  (click)="toggleGroupExpansion(item.id)"
                  [title]="'Click to ' + (item.isExpanded ? 'collapse' : 'expand') + ' group'">
               <button class="group-toggle">
-                <lucide-icon
-                  [name]="item.isExpanded ? 'chevron-down' : 'chevron-right'"
+                <svg
+                  [lucideIcon]="item.isExpanded ? 'chevron-down' : 'chevron-right'"
                   size="14">
-                </lucide-icon>
+                </svg>
               </button>
               <span class="group-badge">{{ item.count }}</span>
               <div class="group-content">
@@ -87,9 +87,9 @@ import { LogFilterState } from '../_services/log-filter-state';
                       <div class="line flexible-wrap" [innerHTML]="groupLog.view | highlightLog:logFilterState.searchString()" [title]="groupLog.line"></div>
                       <button class="copy-btn" (click)="copyLog(groupLog); $event.stopPropagation()">
                         @if (copiedLogId() === groupLog.id.toString()) {
-                          <lucide-icon name="check" size="14"></lucide-icon>
+                          <svg lucideIcon="check" size="14"></svg>
                         } @else {
-                          <lucide-icon name="copy" size="14"></lucide-icon>
+                          <svg lucideIcon="copy" size="14"></svg>
                         }
                       </button>
                     </div>
@@ -128,9 +128,9 @@ import { LogFilterState } from '../_services/log-filter-state';
               [title]="'Copy log to clipboard'"
             >
               @if (copiedLogId() === item.id.toString()) {
-                <lucide-icon name="check" size="14"></lucide-icon>
+                <svg lucideIcon="check" size="14"></svg>
               } @else {
-                <lucide-icon name="copy" size="14"></lucide-icon>
+                <svg lucideIcon="copy" size="14"></svg>
               }
             </button>
           </div>
@@ -150,9 +150,9 @@ import { LogFilterState } from '../_services/log-filter-state';
                 [title]="'Copy log to clipboard'"
               >
                 @if (copiedLogId() === item.id.toString()) {
-                  <lucide-icon name="check" size="14"></lucide-icon>
+                  <svg lucideIcon="check" size="14"></svg>
                 } @else {
-                  <lucide-icon name="copy" size="14"></lucide-icon>
+                  <svg lucideIcon="copy" size="14"></svg>
                 }
               </button>
             </div>

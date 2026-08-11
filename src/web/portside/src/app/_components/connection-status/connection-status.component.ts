@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { SignalRService as ClusterHub } from '../../_services/api/signalr.service';
 import { SignalRService as PodLogHub } from '../../_services/signalr.service';
 import { AuthService } from '../../_services/auth-service';
@@ -7,13 +7,13 @@ import { AuthService } from '../../_services/auth-service';
 @Component({
   selector: 'app-connection-status',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
       <div class="status" [class.online]="anyConnected()" [class.offline]="!anyConnected()" [title]="tooltip()">
         <span class="dot"></span>
-        <lucide-icon [name]="anyConnected() ? 'activity' : 'alert-circle'" />
+        <svg [lucideIcon]="anyConnected() ? 'activity' : 'alert-circle'"></svg>
         <span class="label">{{ anyConnected() ? 'Live' : 'Offline' }}</span>
       </div>
     }

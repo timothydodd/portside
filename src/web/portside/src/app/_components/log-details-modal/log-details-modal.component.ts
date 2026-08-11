@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Log } from '../../_services/signalr.service';
 import { ModalComponent, ModalContainerService, ModalLayoutComponent, ToastService } from '@rd-ui';
 import { TimestampFormatPipe } from '../../_pipes/timestamp-format.pipe';
@@ -9,7 +9,7 @@ import { HighlightLogPipe } from '../../_pages/main-log-page/_services/highlight
 @Component({
   selector: 'app-log-details-modal',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TimestampFormatPipe, HighlightLogPipe, ModalLayoutComponent],
+  imports: [CommonModule, LucideDynamicIcon, TimestampFormatPipe, HighlightLogPipe, ModalLayoutComponent],
   template: `
     <rd-modal-layout [title]="'Log Details'">
       <div slot="body" class="log-details-content">
@@ -68,10 +68,10 @@ import { HighlightLogPipe } from '../../_pages/main-log-page/_services/highlight
               <h4>Full Log Message</h4>
               <button class="copy-btn" (click)="copyFullLog()" title="Copy full log">
                 @if (copied()) {
-                  <lucide-icon name="check" size="16"></lucide-icon>
+                  <svg lucideIcon="check" size="16"></svg>
                   Copied!
                 } @else {
-                  <lucide-icon name="copy" size="16"></lucide-icon>
+                  <svg lucideIcon="copy" size="16"></svg>
                   Copy
                 }
               </button>
@@ -91,7 +91,7 @@ import { HighlightLogPipe } from '../../_pages/main-log-page/_services/highlight
       <div slot="footer">
         <button class="btn btn-secondary" (click)="close()">Close</button>
         <button class="btn btn-primary" (click)="copyFullLog()">
-          <lucide-icon name="copy" size="16"></lucide-icon>
+          <svg lucideIcon="copy" size="16"></svg>
           Copy Log
         </button>
       </div>

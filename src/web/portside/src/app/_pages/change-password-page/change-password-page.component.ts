@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { AuthService } from '../../_services/auth-service';
 
 @Component({
   selector: 'app-change-password-page',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideDynamicIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './change-password-page.component.scss',
   template: `
     <div class="change-password-page">
       <form class="card" (submit)="submit($event)" autocomplete="off">
         <div class="title">
-          <lucide-icon name="settings" />
+          <svg lucideIcon="settings"></svg>
           <h2>Change Password</h2>
         </div>
 
@@ -48,16 +48,16 @@ import { AuthService } from '../../_services/auth-service';
         </label>
 
         @if (error()) {
-          <div class="msg error"><lucide-icon name="alert-circle" /> {{ error() }}</div>
+          <div class="msg error"><svg lucideIcon="alert-circle"></svg> {{ error() }}</div>
         }
         @if (success()) {
-          <div class="msg ok"><lucide-icon name="check-circle" /> {{ success() }}</div>
+          <div class="msg ok"><svg lucideIcon="check-circle"></svg> {{ success() }}</div>
         }
 
         <div class="actions">
           <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
           <button type="submit" class="btn primary" [disabled]="saving()">
-            @if (saving()) { <lucide-icon name="loader-2" /> Saving... }
+            @if (saving()) { <svg lucideIcon="loader-2"></svg> Saving... }
             @else { Save }
           </button>
         </div>

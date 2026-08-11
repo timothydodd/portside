@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, viewChild, input, output, signal, computed, inject, AfterRenderRef, afterNextRender, runInInjectionContext, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { DateRangePickerComponent, DateRange } from '../date-range-picker/date-range-picker.component';
 import { LogFilterState } from '../../_pages/main-log-page/_services/log-filter-state';
 
@@ -11,7 +11,7 @@ export interface TimeFilter {
 
 @Component({
   selector: 'app-time-filter-dropdown',
-  imports: [CommonModule, LucideAngularModule, DateRangePickerComponent],
+  imports: [CommonModule, LucideDynamicIcon, DateRangePickerComponent],
   templateUrl: './time-filter-dropdown.component.html',
   styleUrl: './time-filter-dropdown.component.scss'
 })

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ColorLight, PRESET_COLORS } from '../../_services/color-light.model';
 import { PALETTE_DEFINITIONS } from '../../_services/palette-definitions';
 import { ColorWheelPickerComponent } from '../color-wheel-picker/color-wheel-picker.component';
@@ -10,14 +10,14 @@ import { SliderComponent } from '../slider/slider.component';
 @Component({
   selector: 'app-color-picker',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, SliderComponent, ColorWheelPickerComponent, PaletteDropdownComponent],
+  imports: [FormsModule, LucideDynamicIcon, SliderComponent, ColorWheelPickerComponent, PaletteDropdownComponent],
   template: `
     <div class="color-picker-container">
       <!-- Light Effects Dropdown (if supported) -->
       @if (device().supportsEffects()) {
         <div class="control-group">
           <label class="control-label">
-            <lucide-icon name="sparkles" size="16"></lucide-icon>
+            <svg lucideIcon="sparkles" size="16"></svg>
             <span>Light Effect</span>
           </label>
           <select
@@ -36,7 +36,7 @@ import { SliderComponent } from '../slider/slider.component';
       @if (device().supportsPalettes() && device().shouldShowEffectControls()) {
         <div class="control-group">
           <label class="control-label">
-            <lucide-icon name="palette" size="16"></lucide-icon>
+            <svg lucideIcon="palette" size="16"></svg>
             <span>Color Palette</span>
           </label>
           <app-palette-dropdown
@@ -55,7 +55,7 @@ import { SliderComponent } from '../slider/slider.component';
       <!-- Level Control (moved to top) -->
       <div class="control-group">
         <label class="control-label">
-          <lucide-icon name="sun" size="16"></lucide-icon>
+          <svg lucideIcon="sun" size="16"></svg>
           <span>Brightness</span>
           <span class="value">{{ brightness() }}%</span>
         </label>
@@ -66,7 +66,7 @@ import { SliderComponent } from '../slider/slider.component';
       @if (device().supportsEffectSpeed() && device().shouldShowEffectControls()) {
         <div class="control-group">
           <label class="control-label">
-            <lucide-icon name="zap" size="16"></lucide-icon>
+            <svg lucideIcon="zap" size="16"></svg>
             <span>Effect Speed</span>
             <span class="value">{{ effectSpeed() }}%</span>
           </label>
@@ -93,27 +93,27 @@ import { SliderComponent } from '../slider/slider.component';
             <div class="info-and-preview">
               <div class="info-grid">
                 <div class="info-item">
-                  <lucide-icon name="palette" size="16"></lucide-icon>
+                  <svg lucideIcon="palette" size="16"></svg>
                   <span class="label">Hue</span>
                   <span class="value">{{ hueDegrees() }}°</span>
                 </div>
                 <div class="info-item">
-                  <lucide-icon name="droplets" size="16"></lucide-icon>
+                  <svg lucideIcon="droplets" size="16"></svg>
                   <span class="label">Saturation</span>
                   <span class="value">{{ saturation() }}%</span>
                 </div>
                 <div class="info-item">
-                  <lucide-icon name="sun" size="16"></lucide-icon>
+                  <svg lucideIcon="sun" size="16"></svg>
                   <span class="label">Level</span>
                   <span class="value">{{ brightness() }}%</span>
                 </div>
                 <div class="info-item">
-                  <lucide-icon name="hash" size="16"></lucide-icon>
+                  <svg lucideIcon="hash" size="16"></svg>
                   <span class="label">Hex</span>
                   <span class="value">{{ currentHex() }}</span>
                 </div>
                 <div class="info-item">
-                  <lucide-icon name="square" size="16"></lucide-icon>
+                  <svg lucideIcon="square" size="16"></svg>
                   <span class="label">RGB</span>
                   <span class="value">{{ currentRgb() }}</span>
                 </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ClusterStripComponent } from './_components/cluster-strip/cluster-strip.component';
 import { ConnectionStatusComponent } from './_components/connection-status/connection-status.component';
 import { UserMenuComponent } from './_components/user-menu/user-menu.component';
@@ -16,7 +16,7 @@ import { AuthService } from './_services/auth-service';
     RouterModule,
     RouterLink,
     RouterLinkActive,
-    LucideAngularModule,
+    LucideDynamicIcon,
     DynamicBackgroundDirective,
     EffectBackgroundDirective,
     UserMenuComponent,
@@ -34,11 +34,11 @@ import { AuthService } from './_services/auth-service';
           <span class="subtitle">Kubernetes Dashboard</span>
           <nav class="app-nav">
             <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-              <lucide-icon name="layout-grid" />
+              <svg lucideIcon="layout-grid"></svg>
               <span>Dashboard</span>
             </a>
             <a routerLink="/logs" routerLinkActive="active" class="nav-link">
-              <lucide-icon name="server" />
+              <svg lucideIcon="server"></svg>
               <span>Pod Logs</span>
             </a>
           </nav>

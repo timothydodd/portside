@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal, 
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { SelectComponent } from '@rd-ui';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -47,7 +47,7 @@ const TIME_RANGES: TimeRange[] = [
 @Component({
   selector: 'app-pod-logs-page',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, HighlightLogPipe, SelectComponent],
+  imports: [FormsModule, LucideDynamicIcon, HighlightLogPipe, SelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './pod-logs-page.component.scss',
   template: `
@@ -95,16 +95,16 @@ const TIME_RANGES: TimeRange[] = [
           <input type="text" [(ngModel)]="search" placeholder="Filter lines..." />
         </div>
         <button class="btn" (click)="clear()" title="Clear logs">
-          <lucide-icon name="trash-2" /> Clear
+          <svg lucideIcon="trash-2"></svg> Clear
         </button>
         <button class="btn" (click)="reload()" [disabled]="!selectedPod()" title="Reload tail">
-          <lucide-icon name="refresh-cw" /> Reload
+          <svg lucideIcon="refresh-cw"></svg> Reload
         </button>
       </div>
 
       @if (error()) {
         <div class="error-banner">
-          <lucide-icon name="alert-circle" /> {{ error() }}
+          <svg lucideIcon="alert-circle"></svg> {{ error() }}
         </div>
       }
 
@@ -137,9 +137,9 @@ const TIME_RANGES: TimeRange[] = [
               } @else {
                 <button class="btn" (click)="loadOlder()" [disabled]="loadingMore()">
                   @if (loadingMore()) {
-                    <lucide-icon name="loader-2" /> Loading...
+                    <svg lucideIcon="loader-2"></svg> Loading...
                   } @else {
-                    <lucide-icon name="rotate-ccw" /> Load older
+                    <svg lucideIcon="rotate-ccw"></svg> Load older
                   }
                 </button>
               }

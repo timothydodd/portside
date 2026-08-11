@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, Injector, input } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ModalContainerService } from '../modal-container.service';
 import { ModalComponent } from '../modal.component';
 
 @Component({
   selector: 'app-modal-layout',
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <div class="modal-header">
       <ng-content select="[slot=header]">

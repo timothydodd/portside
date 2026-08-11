@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-widget-toggle-item',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideDynamicIcon],
   template: `
     <div
       class="widget-item bg-glass rounded-card p-widget-sm"
@@ -17,7 +17,7 @@ import { LucideAngularModule } from 'lucide-angular';
     >
       <div class="widget-header">
         <div class="widget-info">
-          <lucide-icon [name]="icon()" size="20" class="widget-icon" />
+          <svg [lucideIcon]="icon()" size="20" class="widget-icon"></svg>
           <div>
             <h6 class="widget-name">{{ title() }}</h6>
             <p class="widget-description">{{ description() }}</p>

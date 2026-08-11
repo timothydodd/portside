@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener,
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { startOfToday, subDays, subHours, subMonths } from 'date-fns'; // Import date-fns for date manipulations
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 import { debounceTime } from 'rxjs';
 import { SelectComponent, ModalContainerService, ToastService } from '@rd-ui';
@@ -27,12 +27,12 @@ import { LogFilterState } from '../_services/log-filter-state';
 @Component({
   selector: 'app-log-filter-controls',
   standalone: true,
-  imports: [FormsModule, SelectComponent, TimeFilterDropdownComponent, LucideAngularModule],
+  imports: [FormsModule, SelectComponent, TimeFilterDropdownComponent, LucideDynamicIcon],
   template: `
     <div class="compact-toolbar filter-container-base">
       <!-- Search Input -->
       <div class="filter-item search-wrapper search-wrapper-base">
-        <lucide-icon name="search" size="14" class="input-icon"></lucide-icon>
+        <svg lucideIcon="search" size="14" class="input-icon"></svg>
         <input
           class="search-input search-input-base compact-control"
           id="search"
@@ -93,7 +93,7 @@ import { LogFilterState } from '../_services/log-filter-state';
         [disabled]="!hasActiveFilters()"
         [title]="'Clear all filters'"
       >
-        <lucide-icon name="filter-x" size="16"></lucide-icon>
+        <svg lucideIcon="filter-x" size="16"></svg>
       </button>
 
       <!-- Actions Menu -->
@@ -104,16 +104,16 @@ import { LogFilterState } from '../_services/log-filter-state';
           [title]="'Actions menu'"
           [class.active]="showActionsMenu()"
         >
-          <lucide-icon name="more-vertical" size="16"></lucide-icon>
+          <svg lucideIcon="more-vertical" size="16"></svg>
         </button>
 
         @if (showActionsMenu()) {
           <div class="actions-dropdown dropdown-menu-base">
             <!-- Display Settings Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleDisplayCategory()">
-              <lucide-icon name="eye" size="12"></lucide-icon>
+              <svg lucideIcon="eye" size="12"></svg>
               Display
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showDisplayCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showDisplayCategory()"></svg>
             </div>
 
             @if (showDisplayCategory()) {
@@ -122,7 +122,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleTimestampFormat()"
                 >
-                  <lucide-icon name="clock" size="14"></lucide-icon>
+                  <svg lucideIcon="clock" size="14"></svg>
                   {{ timestampService.timestampFormat() === 'relative' ? 'Show Absolute Time' : 'Show Relative Time' }}
                 </button>
 
@@ -130,7 +130,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleViewMode()"
                 >
-                  <lucide-icon name="{{ viewModeService.isCompact() ? 'maximize-2' : 'minimize-2' }}" size="14"></lucide-icon>
+                  <svg lucideIcon="{{ viewModeService.isCompact() ? 'maximize-2' : 'minimize-2' }}" size="14"></svg>
                   {{ viewModeService.isCompact() ? 'Expanded View' : 'Compact View' }}
                 </button>
 
@@ -138,7 +138,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleLogGrouping()"
                 >
-                  <lucide-icon name="group" size="14"></lucide-icon>
+                  <svg lucideIcon="group" size="14"></svg>
                   {{ groupingService.isGroupingEnabled() ? 'Disable Grouping' : 'Enable Grouping' }}
                 </button>
 
@@ -146,7 +146,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleLineNumbers()"
                 >
-                  <lucide-icon name="hash" size="14"></lucide-icon>
+                  <svg lucideIcon="hash" size="14"></svg>
                   {{ lineNumbersService.isLineNumbersEnabled() ? 'Hide Line Numbers' : 'Show Line Numbers' }}
                 </button>
               </div>
@@ -154,9 +154,9 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Live Updates Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleLiveUpdatesCategory()">
-              <lucide-icon name="activity" size="12"></lucide-icon>
+              <svg lucideIcon="activity" size="12"></svg>
               Live Updates
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showLiveUpdatesCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showLiveUpdatesCategory()"></svg>
             </div>
 
             @if (showLiveUpdatesCategory()) {
@@ -165,7 +165,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleLiveUpdates()"
                 >
-                  <lucide-icon name="{{ liveUpdatesService.isLiveUpdatesEnabled() ? 'pause' : 'play' }}" size="14"></lucide-icon>
+                  <svg lucideIcon="{{ liveUpdatesService.isLiveUpdatesEnabled() ? 'pause' : 'play' }}" size="14"></svg>
                   {{ liveUpdatesService.isLiveUpdatesEnabled() ? 'Pause Live Updates' : 'Resume Live Updates' }}
                   @if (liveUpdatesService.queuedLogsCount() > 0) {
                     <span class="badge">{{ liveUpdatesService.queuedLogsCount() }}</span>
@@ -176,7 +176,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleSoundAlerts()"
                 >
-                  <lucide-icon name="{{ audioService.soundSettings().enabled ? 'volume-2' : 'volume-x' }}" size="14"></lucide-icon>
+                  <svg lucideIcon="{{ audioService.soundSettings().enabled ? 'volume-2' : 'volume-x' }}" size="14"></svg>
                   {{ audioService.soundSettings().enabled ? 'Disable Sound Alerts' : 'Enable Sound Alerts' }}
                 </button>
               </div>
@@ -184,9 +184,9 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Chart Settings Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleChartCategory()">
-              <lucide-icon name="eye" size="12"></lucide-icon>
+              <svg lucideIcon="eye" size="12"></svg>
               Chart Display
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showChartCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showChartCategory()"></svg>
             </div>
 
             @if (showChartCategory()) {
@@ -195,7 +195,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="toggleChartVisibility()"
                 >
-                  <lucide-icon name="{{ chartVisibilityService.isChartVisible() ? 'eye-off' : 'eye' }}" size="14"></lucide-icon>
+                  <svg lucideIcon="{{ chartVisibilityService.isChartVisible() ? 'eye-off' : 'eye' }}" size="14"></svg>
                   {{ chartVisibilityService.isChartVisible() ? 'Hide Chart' : 'Show Chart' }}
                 </button>
               </div>
@@ -203,9 +203,9 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Chart Type Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleChartTypeCategory()">
-              <lucide-icon name="bar-chart-3" size="12"></lucide-icon>
+              <svg lucideIcon="bar-chart-3" size="12"></svg>
               Chart Type
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showChartTypeCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showChartTypeCategory()"></svg>
             </div>
 
             @if (showChartTypeCategory()) {
@@ -215,7 +215,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                     class="action-item dropdown-item-base"
                     [class.active]="chartTypeService.selectedChartType() === chartType.type"
                     (click)="selectChartType(chartType.type)">
-                    <lucide-icon name="{{ chartType.icon }}" size="14"></lucide-icon>
+                    <svg lucideIcon="{{ chartType.icon }}" size="14"></svg>
                     {{ chartType.label }}
                   </button>
                 }
@@ -224,9 +224,9 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Filter Presets Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleDataCategory()">
-              <lucide-icon name="bookmark" size="12"></lucide-icon>
+              <svg lucideIcon="bookmark" size="12"></svg>
               Filter Presets
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showDataCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showDataCategory()"></svg>
             </div>
 
             @if (showDataCategory()) {
@@ -235,7 +235,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   class="action-item dropdown-item-base"
                   (click)="openPresetsModal()"
                 >
-                  <lucide-icon name="bookmark" size="14"></lucide-icon>
+                  <svg lucideIcon="bookmark" size="14"></svg>
                   Manage Presets
                 </button>
               </div>
@@ -243,19 +243,19 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Export Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleExportCategory()">
-              <lucide-icon name="download" size="12"></lucide-icon>
+              <svg lucideIcon="download" size="12"></svg>
               Export Logs
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showExportCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showExportCategory()"></svg>
             </div>
 
             @if (showExportCategory()) {
               <div class="category-content">
                 <button class="action-item dropdown-item-base" (click)="exportLogs('csv')">
-                  <lucide-icon name="download" size="14"></lucide-icon>
+                  <svg lucideIcon="download" size="14"></svg>
                   Export as CSV
                 </button>
                 <button class="action-item dropdown-item-base" (click)="exportLogs('json')">
-                  <lucide-icon name="download" size="14"></lucide-icon>
+                  <svg lucideIcon="download" size="14"></svg>
                   Export as JSON
                 </button>
               </div>
@@ -263,9 +263,9 @@ import { LogFilterState } from '../_services/log-filter-state';
 
             <!-- Memory Management Category -->
             <div class="category-header category-header-base submenu-trigger" (click)="toggleMemoryCategory()">
-              <lucide-icon name="database" size="12"></lucide-icon>
+              <svg lucideIcon="database" size="12"></svg>
               Memory Management
-              <lucide-icon name="chevron-down" size="12" [class.rotated]="showMemoryCategory()"></lucide-icon>
+              <svg lucideIcon="chevron-down" size="12" [class.rotated]="showMemoryCategory()"></svg>
             </div>
 
             @if (showMemoryCategory()) {
@@ -345,7 +345,7 @@ import { LogFilterState } from '../_services/log-filter-state';
                   <button
                     class="action-item memory-reset-btn"
                     (click)="resetMemorySettings()">
-                    <lucide-icon name="rotate-ccw" size="14"></lucide-icon>
+                    <svg lucideIcon="rotate-ccw" size="14"></svg>
                     Reset to Defaults
                   </button>
                 </div>

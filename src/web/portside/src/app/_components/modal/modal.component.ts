@@ -1,12 +1,12 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, Component, inject, signal, Type } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ModalContainerService } from './modal-container.service';
 
 @Component({
   selector: 'app-modal',
-  imports: [LucideAngularModule, NgComponentOutlet],
+  imports: [LucideDynamicIcon, NgComponentOutlet],
   template: `
     <div class="backdrop" [@fadeInOut]></div>
     <div class="modal-wrapper" (click)="onBackdropClick($event)">

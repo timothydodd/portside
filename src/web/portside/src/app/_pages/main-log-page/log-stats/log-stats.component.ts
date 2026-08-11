@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, si
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActiveElement, Chart, ChartEvent, ChartOptions } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { BaseChartDirective } from 'ng2-charts';
 import { combineLatest, switchMap } from 'rxjs';
 import { LogApiService, LogStatistic, TimePeriod } from '../../../_services/log.api';
@@ -12,7 +12,7 @@ import { LogFilterState } from '../_services/log-filter-state';
 @Component({
   selector: 'app-log-stats',
   standalone: true,
-  imports: [BaseChartDirective, LucideAngularModule],
+  imports: [BaseChartDirective, LucideDynamicIcon],
 
   template: `@if (stats() !== null) {
     <div class="chart-wrapper">
@@ -24,21 +24,21 @@ import { LogFilterState } from '../_services/log-filter-state';
             (click)="zoomIn()"
             [title]="'Zoom in'"
             [disabled]="!canZoomIn()">
-            <lucide-icon name="zoom-in" size="14"></lucide-icon>
+            <svg lucideIcon="zoom-in" size="14"></svg>
           </button>
           <button
             class="zoom-btn"
             (click)="zoomOut()"
             [title]="'Zoom out'"
             [disabled]="!canZoomOut()">
-            <lucide-icon name="zoom-out" size="14"></lucide-icon>
+            <svg lucideIcon="zoom-out" size="14"></svg>
           </button>
           <button
             class="zoom-btn reset-btn"
             (click)="resetZoom()"
             [title]="'Reset zoom'"
             [disabled]="!isZoomed()">
-            <lucide-icon name="rotate-ccw" size="14"></lucide-icon>
+            <svg lucideIcon="rotate-ccw" size="14"></svg>
           </button>
         </div>
       </div>

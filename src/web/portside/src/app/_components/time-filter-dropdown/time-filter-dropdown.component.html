@@ -11,12 +11,12 @@
         {{ displayValue() }}
       </span>
     </div>
-    <lucide-icon 
-      name="chevron-down" 
+    <svg 
+      lucideIcon="chevron-down" 
       size="16" 
       class="dropdown-arrow"
       [class.rotated]="isOpen()"
-    ></lucide-icon>
+    ></svg>
   </div>
   
   @if (isOpen()) {

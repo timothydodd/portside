@@ -35,11 +35,13 @@ jobs:
             src/web/portside/package-lock.json
             src/web/portside/src/rd-ui/package-lock.json
 
-      - name: Restore .NET
-        run: dotnet restore src/api/PortsideApi.csproj
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
 
-      - name: Build .NET
-        run: dotnet build src/api/PortsideApi.csproj -c Release --no-restore
+      # Full AOT publish (not just build) so PRs catch trim/AOT breakage before
+      # merge — the docker job only runs on push.
+      - name: Publish .NET (Native AOT)
+        run: dotnet publish src/api/PortsideApi.csproj -c Release -r linux-x64 -p:SkipSpa=true
 
       - name: Install rd-ui deps
         working-directory: src/web/portside/src/rd-ui

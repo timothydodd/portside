@@ -1,5 +1,5 @@
 import { Component, input, output, signal, computed } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Log } from '../../_services/signalr.service';
 
 export interface ContextMenuAction {
@@ -12,7 +12,7 @@ export interface ContextMenuAction {
 @Component({
   selector: 'app-context-menu',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     @if (isVisible()) {
       <div
@@ -29,7 +29,7 @@ export interface ContextMenuAction {
               class="menu-item"
               (click)="onActionClick(action.action)">
               @if (action.icon) {
-                <lucide-icon [name]="action.icon" size="14"></lucide-icon>
+                <svg [lucideIcon]="action.icon" size="14"></svg>
               }
               {{ action.label }}
             </button>

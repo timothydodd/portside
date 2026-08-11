@@ -3,12 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { FilterPresetsService, FilterPreset } from '../../_services/filter-presets.service';
 import { LogFilterState } from '../../_pages/main-log-page/_services/log-filter-state';
 import { ConfirmDialogService, ModalContainerService, ModalLayoutComponent } from '@rd-ui';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-filter-presets-modal',
   standalone: true,
-  imports: [LucideAngularModule, FormsModule, ModalLayoutComponent],
+  imports: [LucideDynamicIcon, FormsModule, ModalLayoutComponent],
   template: `
     <rd-modal-layout [title]="'Filter Presets'">
       <div slot="body" class="presets-content">
@@ -37,7 +37,7 @@ import { LucideAngularModule } from 'lucide-angular';
             class="btn btn-primary"
             [disabled]="!canSavePreset()"
             (click)="saveCurrentPreset()">
-            <lucide-icon name="Save" size="16"></lucide-icon>
+            <svg lucideIcon="Save" size="16"></svg>
             Save Preset
           </button>
         </div>
@@ -51,7 +51,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
           @if (!presetsService.hasPresets()) {
             <div class="empty-state">
-              <lucide-icon name="Bookmark" size="48" class="empty-icon"></lucide-icon>
+              <svg lucideIcon="Bookmark" size="48" class="empty-icon"></svg>
               <p>No saved presets yet</p>
               <p class="text-muted">Save your current filter settings above to create your first preset.</p>
             </div>
@@ -88,14 +88,14 @@ import { LucideAngularModule } from 'lucide-angular';
                         class="btn btn-sm btn-outline-primary"
                         (click)="applyPreset(preset)"
                         title="Apply this preset">
-                        <lucide-icon name="Play" size="14"></lucide-icon>
+                        <svg lucideIcon="Play" size="14"></svg>
                         Apply
                       </button>
                       <button
                         class="btn btn-sm btn-outline-danger"
                         (click)="deletePreset(preset.id)"
                         title="Delete this preset">
-                        <lucide-icon name="Trash2" size="14"></lucide-icon>
+                        <svg lucideIcon="Trash2" size="14"></svg>
                       </button>
                     </div>
                   </div>

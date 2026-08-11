@@ -1,5 +1,7 @@
+using PortsideApi.Common;
 using PortsideApi.Common.HealthChecks;
 using PortsideApi.Data;
+using PortsideApi.Endpoints;
 using PortsideApi.Hubs;
 using PortsideApi.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -23,11 +25,23 @@ public class Program
             });
         }).CreateLogger("PreHost");
 
-        builder.Services.AddControllers();
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         builder.Services.AddMemoryCache();
         builder.Services.AddHttpLogging(_ => { });
-        builder.Services.AddSignalR();
+
+        // Source-generated JSON everywhere (required for Native AOT): minimal APIs...
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
+            options.SerializerOptions.TypeInfoResolverChain.Add(new K8sScalarResolver());
+        });
+
+        // ...and the SignalR hub protocol.
+        builder.Services.AddSignalR().AddJsonProtocol(options =>
+        {
+            options.PayloadSerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
+            options.PayloadSerializerOptions.TypeInfoResolverChain.Add(new K8sScalarResolver());
+        });
 
         builder.Services
             .AddCorsPolicy(config, logger)
@@ -65,7 +79,12 @@ public class Program
         app.UseStaticFiles();
         app.UseDefaultFiles();
 
-        app.MapControllers();
+        app.MapAuthEndpoints();
+        app.MapKubernetesEndpoints();
+        app.MapPodLogEndpoints();
+        app.MapUserPreferencesEndpoints();
+        app.MapMonitorEndpoints();
+
         app.MapHub<KubernetesDashboardHub>("/kubernetes-hub");
         app.MapHub<PodLogHub>("/podloghub");
 

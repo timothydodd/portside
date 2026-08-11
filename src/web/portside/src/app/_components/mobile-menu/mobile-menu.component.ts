@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { take } from 'rxjs';
 import { AuthService, User } from '../../_services/auth-service';
 import { ClickOutsideDirective } from '../../_services/click-outside.directive';
@@ -9,7 +9,7 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
 @Component({
   selector: 'app-mobile-menu',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ClickOutsideDirective],
+  imports: [CommonModule, LucideDynamicIcon, ClickOutsideDirective],
   template: `
     <div class="mobile-menu-container">
       <!-- Hamburger Button -->
@@ -38,7 +38,7 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
             @if (user()) {
               <div class="user-info-header">
                 <div class="user-avatar">
-                  <lucide-icon name="user" size="20"></lucide-icon>
+                  <svg lucideIcon="user" size="20"></svg>
                 </div>
                 <div class="user-details">
                   <div class="username">{{ user()?.userName }}</div>
@@ -50,21 +50,21 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
             <!-- Menu Options List -->
             <div class="menu-options">
               <button class="menu-option" (click)="navigateToSettings()">
-                <lucide-icon name="settings" size="18"></lucide-icon>
+                <svg lucideIcon="settings" size="18"></svg>
                 <span>Settings</span>
-                <lucide-icon name="chevron-down" size="14" class="chevron"></lucide-icon>
+                <svg lucideIcon="chevron-down" size="14" class="chevron"></svg>
               </button>
 
               <button class="menu-option" (click)="navigateToAgents()">
-                <lucide-icon name="server" size="18"></lucide-icon>
+                <svg lucideIcon="server" size="18"></svg>
                 <span>Agents</span>
-                <lucide-icon name="chevron-down" size="14" class="chevron"></lucide-icon>
+                <svg lucideIcon="chevron-down" size="14" class="chevron"></svg>
               </button>
 
               <button class="menu-option logout" (click)="logOut()">
-                <lucide-icon name="log-out" size="18"></lucide-icon>
+                <svg lucideIcon="log-out" size="18"></svg>
                 <span>Sign Out</span>
-                <lucide-icon name="chevron-down" size="14" class="chevron"></lucide-icon>
+                <svg lucideIcon="chevron-down" size="14" class="chevron"></svg>
               </button>
             </div>
           </div>
@@ -76,7 +76,7 @@ import { ClickOutsideDirective } from '../../_services/click-outside.directive';
           @if (filtersTemplate()) {
             <div class="menu-section filters-section">
               <div class="section-header">
-                <lucide-icon name="filter" size="16"></lucide-icon>
+                <svg lucideIcon="filter" size="16"></svg>
                 <span>Filters</span>
               </div>
               <div class="filters-content">

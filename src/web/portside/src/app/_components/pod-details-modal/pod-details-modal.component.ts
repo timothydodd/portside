@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ModalComponent, ModalContainerService, ModalLayoutComponent } from '@rd-ui';
 import { Pod } from '../../_models/kubernetes.interfaces';
 import { UserPreferencesService } from '../../_services/user-preferences.service';
@@ -8,7 +8,7 @@ import { UserPreferencesService } from '../../_services/user-preferences.service
 @Component({
   selector: 'app-pod-details-modal',
   standalone: true,
-  imports: [LucideAngularModule, ModalLayoutComponent],
+  imports: [LucideDynamicIcon, ModalLayoutComponent],
   template: `
     <rd-modal-layout [title]="title()">
       <div slot="body" class="pod-details-body">
@@ -97,9 +97,9 @@ import { UserPreferencesService } from '../../_services/user-preferences.service
                     <tr>
                       <td class="mono">{{ c.name }}</td>
                       <td>
-                        <lucide-icon [name]="c.ready ? 'check-circle' : 'x-circle'"
+                        <svg [lucideIcon]="c.ready ? 'check-circle' : 'x-circle'"
                                      [class.ok]="c.ready"
-                                     [class.bad]="!c.ready" />
+                                     [class.bad]="!c.ready"></svg>
                       </td>
                       <td>{{ containerStateLabel(c.state) }}</td>
                       <td [class.warn]="c.restartCount > 0">{{ c.restartCount }}</td>
@@ -133,7 +133,7 @@ import { UserPreferencesService } from '../../_services/user-preferences.service
         <button class="btn btn-secondary" (click)="close()">Close</button>
         @if (pod(); as p) {
           <button class="btn btn-primary" (click)="viewLogs(p)">
-            <lucide-icon name="server" />
+            <svg lucideIcon="server"></svg>
             View Logs
           </button>
         }

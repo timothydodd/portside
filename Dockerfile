@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build for Portside. Build from the repo root so submodules
-# (src/RoboDodd.OrmLite and src/web/portside/src/rd-ui) are available.
+# Multi-stage build for Portside. Build from the repo root so the rd-ui submodule
+# (src/web/portside/src/rd-ui) is available. The API publishes as a Native AOT
+# binary, so the final image needs only runtime-deps.
 #
 #   docker build -t portside:dev .
 #   docker run -p 8080:8080 -v $HOME/.kube:/home/app/.kube:ro portside:dev
@@ -25,28 +26,33 @@ COPY src/web/portside/src/rd-ui src/web/portside/src/rd-ui
 COPY src/web/portside src/web/portside
 RUN cd src/web/portside && npm run prod
 
-# ---------- Backend build ----------
+# ---------- Backend build (Native AOT) ----------
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS api-build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Restore against the project + submodule project ref.
+# Native AOT compilation needs a native toolchain in the SDK image.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends clang zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY src/api/PortsideApi.csproj src/api/
-COPY src/RoboDodd.OrmLite/src/RoboDodd.OrmLite/RoboDodd.OrmLite.csproj src/RoboDodd.OrmLite/src/RoboDodd.OrmLite/
 COPY common.props Directory.Build.props ./
-RUN dotnet restore src/api/PortsideApi.csproj
+RUN dotnet restore src/api/PortsideApi.csproj -r linux-x64 -p:SkipSpa=true
 
-# Copy the rest of the API source + the submodule.
 COPY src/api src/api
-COPY src/RoboDodd.OrmLite src/RoboDodd.OrmLite
 
+# SkipSpa: the Angular bundle is built in the web-build stage; the API publishes alone.
 RUN dotnet publish src/api/PortsideApi.csproj \
     -c $BUILD_CONFIGURATION \
+    -r linux-x64 \
+    -p:SkipSpa=true \
     -o /app/publish \
-    /p:UseAppHost=false
+    && rm -f /app/publish/*.dbg
 
 # ---------- Final runtime ----------
-FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS final
+# Native binary needs only runtime-deps (no .NET runtime in the image).
+FROM mcr.microsoft.com/dotnet/runtime-deps:${DOTNET_VERSION} AS final
 WORKDIR /app
 
 # Copy publish output and the prebuilt SPA into wwwroot.
@@ -61,4 +67,4 @@ USER app
 ENV ASPNETCORE_URLS=http://+:8080 \
     ConnectionStrings__DefaultConnection="Data Source=/app/data/portside.db"
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "PortsideApi.dll"]
+ENTRYPOINT ["./PortsideApi"]

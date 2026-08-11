@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { FlashLabelComponent } from '../../_components/flash-label/flash-label.component';
 import { ProgressBarComponent } from '../../_components/progress-bar/progress-bar.component';
@@ -10,7 +10,7 @@ import { Cluster, KubernetesApiService, NodeStats } from '../../_services/kubern
 
 @Component({
   selector: 'app-w-kubernetes',
-  imports: [FormsModule, ProgressBarComponent, LucideAngularModule, FlashLabelComponent, LoadingSpinnerComponent],
+  imports: [FormsModule, ProgressBarComponent, LucideDynamicIcon, FlashLabelComponent, LoadingSpinnerComponent],
   template: `
     <div class="widget-container">
       @if (isLoading() && nodes().length === 0) {
@@ -20,10 +20,10 @@ import { Cluster, KubernetesApiService, NodeStats } from '../../_services/kubern
         </div>
       } @else if (error()) {
         <div class="error-state">
-          <lucide-icon name="alert-circle" />
+          <svg lucideIcon="alert-circle"></svg>
           <p>{{ error() }}</p>
           <button (click)="retry()" class="retry-btn">
-            <lucide-icon name="refresh-cw" />
+            <svg lucideIcon="refresh-cw"></svg>
             Retry
           </button>
         </div>
@@ -34,13 +34,13 @@ import { Cluster, KubernetesApiService, NodeStats } from '../../_services/kubern
             @for (node of nodes(); track node.name) {
               <div class="node-card">
                 <div class="node-header">
-                  <lucide-icon name="server" />
+                  <svg lucideIcon="server"></svg>
                   <span class="node-name">{{ node.name }}</span>
                 </div>
                 <div class="metrics">
                   <div class="metric">
                     <div class="metric-header">
-                      <lucide-icon name="cpu" />
+                      <svg lucideIcon="cpu"></svg>
                       <span>CPU</span>
                     </div>
                     <app-progress-bar [progress]="node.cpuPercentage()" />
@@ -48,7 +48,7 @@ import { Cluster, KubernetesApiService, NodeStats } from '../../_services/kubern
                   </div>
                   <div class="metric">
                     <div class="metric-header">
-                      <lucide-icon name="memory-stick" />
+                      <svg lucideIcon="memory-stick"></svg>
                       <span>Memory</span>
                     </div>
                     <app-progress-bar [progress]="node.memoryPercentage()" />
@@ -66,7 +66,7 @@ import { Cluster, KubernetesApiService, NodeStats } from '../../_services/kubern
         </div>
       } @else {
         <div class="empty-state">
-          <lucide-icon name="server" />
+          <svg lucideIcon="server"></svg>
           <p>No nodes found</p>
         </div>
       }

@@ -1,8 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using PortsideApi.Data.Models;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using PortsideApi.Data.Models;
 
 namespace PortsideApi.Services;
 
@@ -23,32 +23,34 @@ public class AuthService
         var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT secret not configured");
         var issuer = jwtSettings["Issuer"];
         var audience = jwtSettings["Audience"];
-        var expiryMinutes = Convert.ToInt32(jwtSettings["ExpiryMinutes"] ?? "60");
+        var expiryMinutes = int.TryParse(jwtSettings["ExpiryMinutes"], out var m) ? m : 60;
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        // JsonWebTokenHandler instead of JwtSecurityTokenHandler: same wire format,
+        // but trim/AOT compatible (no reflection-based claim mapping on the write path).
+        var descriptor = new SecurityTokenDescriptor
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim("user-id", user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            Issuer = issuer,
+            Audience = audience,
+            Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
+            SigningCredentials = credentials,
+            Claims = new Dictionary<string, object>
+            {
+                [JwtRegisteredClaimNames.Sub] = user.UserName,
+                ["user-id"] = user.Id.ToString(),
+                [JwtRegisteredClaimNames.Jti] = Guid.NewGuid().ToString(),
+            },
         };
 
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            signingCredentials: credentials);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new JsonWebTokenHandler().CreateToken(descriptor);
     }
 
     public bool ValidateUser(User user, string password)
         => _passwordService.VerifyPassword(user, password);
 
-    public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+    public async Task<ClaimsPrincipal?> GetPrincipalFromExpiredTokenAsync(string token)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT secret not configured");
@@ -62,21 +64,17 @@ public class AuthService
             ValidateLifetime = false
         };
 
-        var handler = new JwtSecurityTokenHandler();
-        try
-        {
-            var principal = handler.ValidateToken(token, parameters, out var validatedToken);
-            if (validatedToken is not JwtSecurityToken jwt ||
-                !jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return null;
-            }
-            return principal;
-        }
-        catch
+        var handler = new JsonWebTokenHandler();
+        var result = await handler.ValidateTokenAsync(token, parameters);
+        if (!result.IsValid) return null;
+
+        if (result.SecurityToken is not JsonWebToken jwt ||
+            !jwt.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
         {
             return null;
         }
+
+        return new ClaimsPrincipal(result.ClaimsIdentity);
     }
 
     public Guid? GetUserIdFromPrincipal(ClaimsPrincipal principal)

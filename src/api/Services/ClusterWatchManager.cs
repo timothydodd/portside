@@ -2,6 +2,7 @@ using k8s;
 using k8s.Models;
 using PortsideApi.Common;
 using PortsideApi.Hubs;
+using PortsideApi.Models;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace PortsideApi.Services;
@@ -75,7 +76,6 @@ public sealed class ClusterWatchManager : IAsyncDisposable
     private void StartWatchers_Locked()
     {
         _cts?.Cancel();
-        _cts?.Dispose();
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
 
@@ -88,8 +88,11 @@ public sealed class ClusterWatchManager : IAsyncDisposable
 
     private void StopWatchers_Locked()
     {
+        // Cancel but don't Dispose: the watch tasks still hold this token, and
+        // disposing while they're mid-await turns clean cancellation into
+        // ObjectDisposedException / "stream was not readable" noise. A CTS with no
+        // timer holds no resources worth reclaiming eagerly.
         _cts?.Cancel();
-        _cts?.Dispose();
         _cts = null;
         _metricsTask = _watchNodesTask = _watchPodsTask = _watchEventsTask = null;
         _podMonitor.Stop();
@@ -142,10 +145,12 @@ public sealed class ClusterWatchManager : IAsyncDisposable
                 onEvent: async (eventType, node) =>
                 {
                     _logger.LogDebug("Node event: {EventType} - {Name}", eventType, node.Metadata.Name);
-                    await _dashboardHubService.SendNodeUpdate(Constants.DefaultCluster.Id, new { EventType = eventType.ToString(), Node = node });
+                    node.StripManagedFields();
+                    await _dashboardHubService.SendNodeUpdate(Constants.DefaultCluster.Id, new NodeWatchEvent(eventType, node));
                 },
                 onError: ex => _logger.LogWarning(ex, "Node watch error"),
-                onClosed: () => _logger.LogInformation("Node watch closed"));
+                onClosed: () => _logger.LogInformation("Node watch closed"),
+                token: token);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -158,19 +163,20 @@ public sealed class ClusterWatchManager : IAsyncDisposable
     {
         try
         {
-            var response = await _kubernetesClient.CoreV1.ListPodForAllNamespacesWithHttpMessagesAsync(
+            var responseTask = _kubernetesClient.CoreV1.ListPodForAllNamespacesWithHttpMessagesAsync(
                 watch: true, cancellationToken: token);
-            response.Watch<V1Pod, V1PodList>(
+            await K8sWatch.WatchAsync(responseTask, AppJson.V1Pod,
                 onEvent: async (eventType, pod) =>
                 {
                     _logger.LogDebug("Pod event: {EventType} - {Name} in {Ns}",
                         eventType, pod.Metadata.Name, pod.Metadata.NamespaceProperty);
-                    await _dashboardHubService.SendPodUpdate(Constants.DefaultCluster.Id, pod.Metadata.NamespaceProperty,
-                        new { EventType = eventType.ToString(), Pod = pod });
-                    await _dashboardHubService.SendClusterPodUpdate(Constants.DefaultCluster.Id,
-                        new { EventType = eventType.ToString(), Pod = pod });
+                    pod.StripManagedFields();
+                    var podEvent = new PodWatchEvent(eventType, pod);
+                    await _dashboardHubService.SendPodUpdate(Constants.DefaultCluster.Id, pod.Metadata.NamespaceProperty, podEvent);
+                    await _dashboardHubService.SendClusterPodUpdate(Constants.DefaultCluster.Id, podEvent);
                 },
-                onError: ex => _logger.LogWarning(ex, "Pod watch error"));
+                onError: ex => _logger.LogWarning(ex, "Pod watch error"),
+                token: token);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
@@ -183,16 +189,18 @@ public sealed class ClusterWatchManager : IAsyncDisposable
     {
         try
         {
-            var response = await _kubernetesClient.CoreV1.ListEventForAllNamespacesWithHttpMessagesAsync(
+            var responseTask = _kubernetesClient.CoreV1.ListEventForAllNamespacesWithHttpMessagesAsync(
                 watch: true, cancellationToken: token);
-            response.Watch<Corev1Event, Corev1EventList>(
+            await K8sWatch.WatchAsync(responseTask, AppJson.Corev1Event,
                 onEvent: async (eventType, k8sEvent) =>
                 {
                     _logger.LogDebug("K8s event: {EventType} - {Message}", eventType, k8sEvent.Message);
+                    k8sEvent.StripManagedFields();
                     await _dashboardHubService.SendEventUpdate(Constants.DefaultCluster.Id,
-                        new { EventType = eventType.ToString(), Event = k8sEvent });
+                        new K8sEventWatchEvent(eventType, k8sEvent));
                 },
-                onError: ex => _logger.LogWarning(ex, "Event watch error"));
+                onError: ex => _logger.LogWarning(ex, "Event watch error"),
+                token: token);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)

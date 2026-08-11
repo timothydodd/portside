@@ -5,6 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Workstation GC: single-user dashboard doesn't need per-core server heaps;
+         this alone typically halves the working set vs the ASP.NET default. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <!-- Native AOT: publish compiles to a native binary; regular builds stay JIT but
+         run the AOT/trim analyzers so incompatibilities surface at build time. -->
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
     <UserSecretsId>7940a0e8-c67b-468f-9855-e5b5e87abb6d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <LangVersion>13</LangVersion>
@@ -14,21 +22,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\web\portside\portside.esproj">
+    <!-- Pass -p:SkipSpa=true to publish/build the API alone (e.g. AOT analysis in WSL,
+         where the Angular esbuild step fails; the frontend is built on Windows). -->
+    <ProjectReference Include="..\web\portside\portside.esproj" Condition="'$(SkipSpa)' != 'true'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\RoboDodd.OrmLite\src\RoboDodd.OrmLite\RoboDodd.OrmLite.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KubernetesClient" Version="17.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.0" />
-    <PackageReference Include="System.Text.Json" Version="10.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="KubernetesClient.Aot" Version="19.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.10" />
+    <!-- SpaProxy is a dev-time hosting startup; it isn't AOT-compatible, so keep it out of Release/publish. -->
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.10" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <!-- Pin transitive SQLitePCLRaw above the vulnerable 2.1.11 (GHSA-2m69-gcr7-jv3q). -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
   </ItemGroup>
 
 </Project>

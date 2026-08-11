@@ -1,13 +1,13 @@
 import { Component, inject, signal, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Log, SignalRService } from '../../_services/signalr.service';
 
 @Component({
   selector: 'app-error-count-badge',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     @if (errorCount() > 0) {
       <button
@@ -15,7 +15,7 @@ import { Log, SignalRService } from '../../_services/signalr.service';
         [class.pulsing]="hasNewErrors()"
         (click)="onBadgeClick()"
         title="Click to filter error logs">
-        <lucide-icon name="alert-triangle" size="16"></lucide-icon>
+        <svg lucideIcon="alert-triangle" size="16"></svg>
         <span class="count">{{ formatCount(errorCount()) }}</span>
       </button>
     }

@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { ClickOutsideDirective } from '../../_services/click-outside.directive';
 
 export interface ColumnFilterItem {
@@ -18,7 +18,7 @@ export interface ColumnFilterItem {
 @Component({
   selector: 'app-column-filter',
   standalone: true,
-  imports: [FormsModule, LucideAngularModule, ClickOutsideDirective],
+  imports: [FormsModule, LucideDynamicIcon, ClickOutsideDirective],
   template: `
     <span class="col-filter" appClickOutside (clickOutside)="close()">
       <button type="button"
@@ -26,7 +26,7 @@ export interface ColumnFilterItem {
               [class.active]="isActive()"
               (click)="toggle($event)"
               [attr.aria-label]="'Filter ' + label()">
-        <lucide-icon name="filter" />
+        <svg lucideIcon="filter"></svg>
       </button>
       @if (open()) {
         <div class="filter-panel" [class.align-end]="align() === 'end'" (click)="$event.stopPropagation()">

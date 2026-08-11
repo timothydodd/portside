@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using k8s;
+using PortsideApi.Common;
 
 namespace PortsideApi.Services;
 
@@ -141,8 +142,9 @@ public sealed class PodMonitorService : IAsyncDisposable
             if (_started == 0) return;
             _started--;
             if (_started > 0) return;
+            // Cancel without Dispose — the scan/poll loops still hold this token
+            // (see ClusterWatchManager.StopWatchers_Locked for rationale).
             _cts?.Cancel();
-            _cts?.Dispose();
             _cts = null;
             _logTask = null;
             _metricsTask = null;
@@ -239,12 +241,14 @@ public sealed class PodMonitorService : IAsyncDisposable
                         sinceSeconds: window,
                         cancellationToken: token);
                     using var reader = new StreamReader(resp.Body);
-                    var text = await reader.ReadToEndAsync(token);
-                    foreach (var line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                    // Stream line-by-line: a 24h log window can be many MB, and buffering
+                    // it into one string allocates on the large object heap every scan.
+                    string? line;
+                    while ((line = await reader.ReadLineAsync(token)) != null)
                     {
-                        var u = line.ToUpperInvariant();
-                        if (u.Contains("ERROR") || u.Contains("EXCEPTION") || u.Contains("FATAL")) errors++;
-                        else if (u.Contains("WARN")) warnings++;
+                        if (line.Length == 0) continue;
+                        if (LogLineCleaner.HasErrorMarker(line)) errors++;
+                        else if (LogLineCleaner.HasWarningMarker(line)) warnings++;
                     }
                 }
                 catch (OperationCanceledException) { throw; }
@@ -261,6 +265,7 @@ public sealed class PodMonitorService : IAsyncDisposable
         // Drop entries for pods that no longer exist.
         var alive = new HashSet<string>(pods.Items.Select(p => $"{p.Metadata.NamespaceProperty}/{p.Metadata.Name}"));
         foreach (var stale in _counts.Keys.Where(k => !alive.Contains(k)).ToList()) _counts.TryRemove(stale, out _);
+        foreach (var stale in _containers.Keys.Where(k => !alive.Contains(k)).ToList()) _containers.TryRemove(stale, out _);
     }
 
     private async Task PollMetricsOnce(MonitorSettings settings, CancellationToken token)
@@ -274,16 +279,16 @@ public sealed class PodMonitorService : IAsyncDisposable
         {
             double cpu = 0, mem = 0;
             if (n.Status?.Capacity?.TryGetValue("cpu", out var c) == true)
-                double.TryParse(c.Value, out cpu);
+                double.TryParse(c.ToString(), out cpu);
             if (n.Status?.Capacity?.TryGetValue("memory", out var m) == true)
-                mem = KubernetesService.ParseMemory(m.Value ?? "0");
+                mem = KubernetesService.ParseMemory(m.ToString());
             nodeCapacity[n.Metadata.Name] = (cpu, mem);
         }
 
         Dictionary<string, (double cpuMilli, double memBytes)> usage = new();
         try
         {
-            var metrics = await _kubernetes.GetKubernetesPodsMetricsAsync();
+            var metrics = await _kubernetes.GetPodMetricsAsync(token);
             foreach (var m in metrics.Items)
             {
                 double cpuCores = 0, mem = 0;
@@ -291,14 +296,14 @@ public sealed class PodMonitorService : IAsyncDisposable
                 {
                     if (c.Usage.TryGetValue("cpu", out var cpuVal))
                     {
-                        try { cpuCores += KubernetesService.ParseCpu(cpuVal.Value); } catch { }
+                        try { cpuCores += KubernetesService.ParseCpu(cpuVal); } catch { }
                     }
                     if (c.Usage.TryGetValue("memory", out var memVal))
                     {
-                        try { mem += KubernetesService.ParseMemory(memVal.Value); } catch { }
+                        try { mem += KubernetesService.ParseMemory(memVal); } catch { }
                     }
                 }
-                usage[$"{m.Metadata.NamespaceProperty}/{m.Metadata.Name}"] = (cpuCores * 1000.0, mem);
+                usage[$"{m.Metadata.Namespace}/{m.Metadata.Name}"] = (cpuCores * 1000.0, mem);
             }
         }
         catch (Exception ex)

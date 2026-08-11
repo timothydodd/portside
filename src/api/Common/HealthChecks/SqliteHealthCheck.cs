@@ -1,27 +1,22 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using RoboDodd.OrmLite;
+using PortsideApi.Data;
 
 namespace PortsideApi.Common.HealthChecks;
 
 public sealed class SqliteHealthCheck : IHealthCheck
 {
-    private readonly DbConnectionFactory _dbFactory;
+    private readonly SqliteConnectionFactory _dbFactory;
 
-    public SqliteHealthCheck(DbConnectionFactory dbFactory) => _dbFactory = dbFactory;
+    public SqliteHealthCheck(SqliteConnectionFactory dbFactory) => _dbFactory = dbFactory;
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var db = _dbFactory.CreateConnection();
-            if (db is System.Data.Common.DbConnection async)
-            {
-                await async.OpenAsync(cancellationToken);
-            }
-            else
-            {
-                db.Open();
-            }
+            using var conn = await _dbFactory.OpenAsync(cancellationToken);
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1";
+            await cmd.ExecuteScalarAsync(cancellationToken);
             return HealthCheckResult.Healthy("SQLite reachable");
         }
         catch (Exception ex)

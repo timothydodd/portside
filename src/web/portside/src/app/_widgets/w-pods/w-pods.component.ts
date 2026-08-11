@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { KubernetesApiService } from '../../_services/kubernetes.api';
 import { SignalRService } from '../../_services/api/signalr.service';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { Pod, PodMetrics } from '../../_models/kubernetes.interfaces';
 import { ModalContainerService } from '@rd-ui';
 import { PodDetailsModalComponent } from '../../_components/pod-details-modal/pod-details-modal.component';
@@ -32,7 +32,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
 @Component({
   selector: 'app-w-pods',
   standalone: true,
-  imports: [LucideAngularModule, RouterLink, FormsModule, ColumnFilterComponent],
+  imports: [LucideDynamicIcon, RouterLink, FormsModule, ColumnFilterComponent],
   template: `
     <div class="pods-widget">
       @if (loading() && pods().length === 0) {
@@ -71,10 +71,10 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
         </div>
       } @else if (error()) {
         <div class="error-state">
-          <lucide-icon name="alert-circle" class="error-icon" />
+          <svg lucideIcon="alert-circle" class="error-icon"></svg>
           <p>{{ error() }}</p>
           <button (click)="retry()" class="retry-btn">
-            <lucide-icon name="refresh-cw" />
+            <svg lucideIcon="refresh-cw"></svg>
             Retry
           </button>
         </div>
@@ -82,7 +82,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
         <div class="pods-content">
           <div class="pods-toolbar">
             <div class="search">
-              <lucide-icon name="search" />
+              <svg lucideIcon="search"></svg>
               <input type="text"
                      [(ngModel)]="searchText"
                      placeholder="Search pods..."
@@ -93,7 +93,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
 
           @if (filteredPods().length === 0) {
             <div class="empty-state">
-              <lucide-icon name="package" />
+              <svg lucideIcon="package"></svg>
               <p>{{ pods().length === 0 ? 'No pods found' : 'No pods match the current filters' }}</p>
             </div>
           } @else {
@@ -139,7 +139,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                          [routerLink]="['/settings']"
                          title="Configure monitoring (backend pushes these counts; opt pods out in Settings)"
                          (click)="$event.stopPropagation()">
-                        <lucide-icon name="settings" />
+                        <svg lucideIcon="settings"></svg>
                       </a>
                     </th>
                     <th><span class="th-label">Actions</span></th>
@@ -158,14 +158,14 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                       </td>
                       <td class="status-cell">
                         <div class="status-indicator">
-                          <lucide-icon [name]="getPodStatusIcon(pod)" class="status-icon" />
+                          <svg [lucideIcon]="getPodStatusIcon(pod)" class="status-icon"></svg>
                           <span class="status-text">{{ pod.status?.phase || 'Unknown' }}</span>
                         </div>
                       </td>
                       <td class="ready-cell">
                         @if (pod.status?.containerStatuses) {
                           <div class="container-info">
-                            <lucide-icon name="box" />
+                            <svg lucideIcon="box"></svg>
                             <span>{{ getReadyContainers(pod) }}/{{ pod.status?.containerStatuses?.length || 0 }}</span>
                           </div>
                         } @else {
@@ -176,7 +176,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                         @let m = getMetrics(pod);
                         @if (m && m.cpuPercent !== undefined && m.cpuPercent !== null) {
                           <div class="resource-info">
-                            <lucide-icon name="cpu" />
+                            <svg lucideIcon="cpu"></svg>
                             <span>{{ m.cpuPercent }}%</span>
                             <svg class="sparkline" viewBox="0 0 60 20" preserveAspectRatio="none"
                                  [attr.aria-label]="'CPU history for ' + pod.metadata.name">
@@ -197,7 +197,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                         @let mm = getMetrics(pod);
                         @if (mm && mm.memory !== undefined && mm.memory !== null) {
                           <div class="resource-info">
-                            <lucide-icon name="memory-stick" />
+                            <svg lucideIcon="memory-stick"></svg>
                             <span>{{ formatMemory(mm.memory) }}</span>
                             @if (mm.memoryPercent !== undefined && mm.memoryPercent !== null) {
                               <span class="resource-percent">({{ mm.memoryPercent }}%)</span>
@@ -209,14 +209,14 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                       </td>
                       <td class="node-cell">
                         <div class="node-info">
-                          <lucide-icon name="server" />
+                          <svg lucideIcon="server"></svg>
                           <span>{{ pod.spec.nodeName ?? 'Unscheduled' }}</span>
                         </div>
                       </td>
                       <td class="age-cell">
                         @if (pod.metadata.creationTimestamp) {
                           <div class="age-info">
-                            <lucide-icon name="clock" />
+                            <svg lucideIcon="clock"></svg>
                             <span>{{ getAge(pod.metadata.creationTimestamp) }}</span>
                           </div>
                         } @else {
@@ -232,7 +232,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                                       class="count-pill error"
                                       title="View errors in logs"
                                       (click)="goToLogs(pod, 'Error'); $event.stopPropagation()">
-                                <lucide-icon name="x-circle" /> {{ counts.error }}
+                                <svg lucideIcon="x-circle"></svg> {{ counts.error }}
                               </button>
                             }
                             @if (counts.warning > 0) {
@@ -240,7 +240,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                                       class="count-pill warning"
                                       title="View warnings in logs"
                                       (click)="goToLogs(pod, 'Warning'); $event.stopPropagation()">
-                                <lucide-icon name="alert-circle" /> {{ counts.warning }}
+                                <svg lucideIcon="alert-circle"></svg> {{ counts.warning }}
                               </button>
                             }
                           </div>
@@ -251,7 +251,7 @@ const KNOWN_STATUSES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
                                 class="details-btn"
                                 title="View pod details"
                                 (click)="openPodDetails(pod); $event.stopPropagation()">
-                          <lucide-icon name="info" />
+                          <svg lucideIcon="info"></svg>
                           <span>Details</span>
                         </button>
                       </td>

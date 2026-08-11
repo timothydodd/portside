@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using PortsideApi.Common;
+using PortsideApi.Models;
 
 namespace PortsideApi.Middleware;
 
@@ -43,21 +45,8 @@ public class GlobalExceptionMiddleware
 
         context.Response.StatusCode = (int)statusCode;
 
-        var response = new
-        {
-            error = new
-            {
-                message,
-                statusCode = (int)statusCode,
-                timestamp = DateTime.UtcNow
-            }
-        };
-
-        var jsonResponse = JsonSerializer.Serialize(response, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-
+        var response = new ErrorEnvelope(new ErrorDetail(message, (int)statusCode, DateTime.UtcNow));
+        var jsonResponse = JsonSerializer.Serialize(response, AppJsonContext.Default.ErrorEnvelope);
         await context.Response.WriteAsync(jsonResponse);
     }
 }
